@@ -25,7 +25,9 @@ ESP8266WebServer server(80);
 
 
 void handleRoot() {
-  server.send(200, "text/plain",  printHistory());
+  server.send(200, "text/html", "<html> <head> <script src='https://www.chartjs.org/dist/2.7.3/Chart.bundle.js'></script> </head> <body> <canvas id='canvas'></canvas> <script>var d=[ "
+              + printHistory() +
+              "]; var len=d.length; var timeFormat='DD-MM-YYYY HH:mm'; function newDate(minutes){return new Date(new Date().getTime() - minutes * 60000)}var l=[]; for(var i=0;i<len;i++){l.push(newDate(len-i));}var color=Chart.helpers.color; var config={type: 'line', data:{labels: l, datasets: [{label: 'Temperatura Pieca', backgroundColor: 'rgb(255, 99, 132)', borderColor: 'rgb(255, 99, 132)', fill: false, data: d}]}, options:{scales:{xAxes: [{type: 'time', time:{format: timeFormat, tooltipFormat: 'll HH:mm'}}]},}}; window.onload=function(){var ctx=document.getElementById('canvas').getContext('2d'); window.myLine=new Chart(ctx, config);}; </script> </body></html>");
 }
 
 void reconnectToWifi() {
@@ -41,14 +43,13 @@ String printHistory() {
     if (index >= HISTORY) {
       index -= HISTORY;
     }
-    //output += (history[index])
-
-
     float tempValue = 0;
     if (history[index] != NULL) {
-      tempValue = history[index];
+      output += String(history[index]);
+      if (i < (HISTORY - 1)) {
+        output += ",";
+      }
     }
-    output += (String(index) +":"+  String(tempValue) + "\n");
   }
   return output;
 }
