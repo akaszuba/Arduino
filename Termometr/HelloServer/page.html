@@ -1,0 +1,61 @@
+<html><head>
+<script src="https://www.chartjs.org/dist/2.7.3/Chart.bundle.js"></script>
+</head><body><canvas id="canvas" width="620" height="310" class="chartjs-render-monitor" style="display: block; width: 620px; height: 310px;"></canvas>
+<script>
+		var timeFormat = 'MM/DD/YYYY HH:mm';
+		function newDate(minutes) {
+			return new Date(new Date().getTime() - minutes * 60000)
+		}
+		var color = Chart.helpers.color;
+		var config = {
+			type: 'line',
+			data: {
+				labels: [ // Date Objects
+					newDate(0),
+					newDate(1),
+					newDate(2),
+					newDate(3),
+					newDate(4),
+					newDate(5),
+					newDate(6)
+				],
+				datasets: [{
+					label: 'My First dataset',
+					backgroundColor: 'rgb(255, 99, 132)',
+					borderColor: 'rgb(255, 99, 132)',
+					fill: false,
+					data: [
+						12,
+						34,
+						56,
+						65,
+						67,
+						98,
+						56
+					]
+				}]
+			},
+			options: {
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							format: timeFormat,
+							tooltipFormat: 'll HH:mm'
+						}
+					}]
+				},
+			}
+		};
+
+		window.onload = function() {
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = new Chart(ctx, config);
+		};	
+	</script>
+
+</body>
+
+
+
+</html>
