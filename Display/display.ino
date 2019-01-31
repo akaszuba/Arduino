@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "font.h"
 
 #define SSD1306_SETCONTRAST 0x81
 #define SSD1306_DISPLAYALLON_RESUME 0xA4
@@ -29,14 +30,14 @@
 #define LED_PIN 32
 #define BUTTON_PIN 0
 
-
 #define SSD1306_LCDHEIGHT 32
 #define SSD1306_LCDWIDTH 128
 
-const long interval = 1000;     
-unsigned long previousMillis = 0;              
-int ledState = LOW;             
-byte charA[4] = {0xFE,0x09,0x09,0xFE};
+const long interval = 1000;
+unsigned long previousMillis = 0;
+int prevoisChar = 0;
+int ledState = LOW;
+byte charA[4] = {0xFE, 0x09, 0x09, 0xFE};
 
 const byte displayAddress = 0x3C;
 static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
@@ -76,7 +77,6 @@ static uint8_t buffer[SSD1306_LCDHEIGHT * SSD1306_LCDWIDTH / 8] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-
 void setup()
 {
   delay(2000);
@@ -86,46 +86,57 @@ void setup()
   initDisplay();
   Serial.println("init done");
   pinMode(LED_PIN, OUTPUT);
-  pinMode(BUTTON_PIN,INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN),przycisk,RISING);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), przycisk, RISING);
 }
 
-void przycisk(){
-Serial.println("przycisk");
-drawPixel(0,0);
-drawPixel(1,1);
-drawPixel(1,2);
-drawPixel(3,3);
+void przycisk()
+{
+  Serial.println("przycisk");
+  uint8_t charToPrint[5];
+  for (int i = 0; i < 5; i++)
+  {
+    charToPrint[i] = SYSFONT[i + (prevoisChar * 5)];
+  }
+  draw(charToPrint, (prevoisChar * 5));
+  prevoisChar++;
 }
 
-void draw(byte* content){
-  for(int i = 0; i< 4; i++){
-    buffer[i] = content[i];
+void draw(byte *content, int xoffset)
+{
+  for (int i = 0; i < 5; i++)
+  {
+    buffer[i + xoffset] = content[i];
   }
   //Serial.println(content);
 }
 
-void drawPixel(int x, int y){
+void drawPixel(int x, int y)
+{
 
- buffer[y] |= (1ULL<<(x));
+  buffer[y] |= (1ULL << (x));
 }
 
 void loop()
 {
-  unsigned long currentMillis = millis(); 
- if (currentMillis - previousMillis >= interval) {
-     previousMillis = currentMillis;
-     Serial.println("loop");
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= interval)
+  {
+    previousMillis = currentMillis;
+    Serial.println("loop");
 
-  refresh();
-    
-     if (ledState == LOW) {
+    refresh();
+
+    if (ledState == LOW)
+    {
       ledState = HIGH;
-    } else {
+    }
+    else
+    {
       ledState = LOW;
     }
     digitalWrite(LED_PIN, ledState);
-  }  
+  }
 }
 
 void refresh()
